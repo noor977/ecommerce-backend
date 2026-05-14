@@ -193,3 +193,91 @@ footer {
     width: 100%;
   }
 }
+/* Search Bar */
+.search-container {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.search-container form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.search-container input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  width: 300px;
+}
+
+.search-container select {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Category Tag */
+.category-tag {
+  background-color: #f0f0f0;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Stock Info */
+.stock {
+  margin: 15px 0;
+  font-weight: bold;
+  color: green;
+}
+
+/* Back Button */
+.btn-outline {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 12px 28px;
+  border: 2px solid #e94560;
+  color: #e94560;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.btn-outline:hover {
+  background-color: #e94560;
+  color: white;
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  font-size: 20px;
+  padding: 40px;
+  color: #999;
+  grid-column: 1 / -1;
+}
+
+/* Mobile - Search */
+@media (max-width: 768px) {
+  .search-container {
+    padding: 15px;
+  }
+
+  .search-container input {
+    width: 100%;
+  }
+
+  .search-container form {
+    flex-direction: column;
+    width: 100%;
+  }
+}

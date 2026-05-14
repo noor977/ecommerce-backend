@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - ShopNow</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header>
+    <nav>
+      <div class="logo">ShopNow</div>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+      </ul>
+      <div class="hamburger">☰</div>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="page-title">All Products</h2>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <form action="/products" method="GET">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search products..."
+          value="<%= searchQuery %>"
+        />
+        <select name="category">
+          <option value="">All Categories</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat %>" <%= categoryQuery === cat ? 'selected' : '' %>>
+              <%= cat %>
+            </option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn">Search</button>
+      </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="product-grid">
+      <% if (products.length === 0) { %>
+        <p class="no-results">No products found.</p>
+      <% } else { %>
+        <% products.forEach(product => { %>
+          <div class="product-card">
+            <img src="<%= product.image %>" alt="<%= product.name %>">
+            <h3><%= product.name %></h3>
+            <p class="category-tag"><%= product.category %></p>
+            <p class="price">Rs. <%= product.price %></p>
+            <a href="/products/<%= product._id %>" class="btn">View Details</a>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 ShopNow</p>
+  </footer>
+
+</body>
+</html>

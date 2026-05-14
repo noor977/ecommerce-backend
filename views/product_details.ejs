@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Details - eCommerce</title>
+  <title><%= product.name %> - ShopNow</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+
   <header>
     <nav>
       <div class="logo">ShopNow</div>
@@ -20,12 +21,21 @@
 
   <main>
     <div class="product-detail">
-      <img src="https://via.placeholder.com/400" alt="Product">
+      <img src="<%= product.image %>" alt="<%= product.name %>">
       <div class="product-info">
-        <h2>Product Name</h2>
-        <p class="price">Rs. 1500</p>
-        <p>This is a great product that is best for you.</p>
+        <h2><%= product.name %></h2>
+        <p class="category-tag"><%= product.category %></p>
+        <p class="price">Rs. <%= product.price %></p>
+        <p class="description"><%= product.description %></p>
+        <p class="stock">
+          <% if (product.stock > 0) { %>
+            In Stock: <%= product.stock %> items
+          <% } else { %>
+            Out of Stock
+          <% } %>
+        </p>
         <button class="btn">Add to Cart</button>
+        <a href="/products" class="btn-outline">Back to Products</a>
       </div>
     </div>
   </main>
@@ -33,5 +43,6 @@
   <footer>
     <p>&copy; 2025 ShopNow</p>
   </footer>
+
 </body>
 </html>
