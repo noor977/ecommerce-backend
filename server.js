@@ -2,77 +2,54 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const Product = require('./models/Product');
+const Product = require('./models/product');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB Connected!'))
-  .catch(err => console.log('DB Error:', err));
-
-// Set EJS as templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files (CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ===== ROUTES =====
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('DB OK'))
+  .catch(e => console.log('DB ERR', e));
 
-// Home Page - show 3 featured products
 app.get('/', async (req, res) => {
   try {
-    const featuredProducts = await Product.find().limit(3);
-    res.render('home', { products: featuredProducts });
-  } catch (err) {
-    res.status(500).send('Server Error');
+    const products = await Product.find().limit(3);
+    console.log('Products:', products.length);
+    res.render('home', { products });
+  } catch(e) {
+    console.log('HOME ERR:', e.message);
+    res.send('Error: ' + e.message);
   }
 });
 
-// Products Page - show all products + search
 app.get('/products', async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
     const categoryQuery = req.query.category || '';
-
     let filter = {};
-
-    if (searchQuery) {
-      filter.name = { $regex: searchQuery, $options: 'i' };
-    }
-
-    if (categoryQuery) {
-      filter.category = categoryQuery;
-    }
-
+    if(searchQuery) filter.name = { $regex: searchQuery, $options: 'i' };
+    if(categoryQuery) filter.category = categoryQuery;
     const products = await Product.find(filter);
     const categories = await Product.distinct('category');
-
-    res.render('products', {
-      products,
-      searchQuery,
-      categoryQuery,
-      categories
-    });
-  } catch (err) {
-    res.status(500).send('Server Error');
+    res.render('products', { products, searchQuery, categoryQuery, categories });
+  } catch(e) {
+    console.log('PRODUCTS ERR:', e.message);
+    res.send('Error: ' + e.message);
   }
 });
 
-// Product Details Page
 app.get('/products/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).send('Product not found');
-    res.render('product-details', { product });
-  } catch (err) {
-    res.status(500).send('Server Error');
+    if(!product) return res.send('Not found');
+    res.render('product_details', { product });
+  } catch(e) {
+    console.log('DETAIL ERR:', e.message);
+    res.send('Error: ' + e.message);
   }
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+app.listen(3000, () => console.log('Server at http://localhost:3000'));
