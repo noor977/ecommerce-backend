@@ -281,3 +281,80 @@ footer {
     width: 100%;
   }
 }
+/* Auth Forms */
+.auth-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a1a2e;
+}
+
+.auth-container input,
+.auth-container textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.auth-container button {
+  width: 100%;
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.auth-container a {
+  color: #e94560;
+}
+
+.error-msg {
+  background: #ffe0e0;
+  color: #c0392b;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.success-msg {
+  background: #e0ffe0;
+  color: #27ae60;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+}
+
+.pagination a {
+  padding: 8px 16px;
+  border: 2px solid #e94560;
+  color: #e94560;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #e94560;
+  color: white;
+}

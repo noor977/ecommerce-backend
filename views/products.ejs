@@ -60,6 +60,15 @@
       <% } %>
     </div>
   </main>
+  <!-- Pagination -->
+<div class="pagination">
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="/products?page=<%= i %>&search=<%= searchQuery %>&category=<%= categoryQuery %>"
+       class="<%= currentPage === i ? 'active' : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+</div>
 
   <footer>
     <p>&copy; 2025 ShopNow</p>
