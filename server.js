@@ -22,30 +22,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Serverless friendly MongoDB connection logic
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
-    return; // Agar pehle se connected hai to dobara connect mat karo
-  }
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 15000,
-    });
-    console.log('MongoDB Connected!');
-  } catch (err) {
-    console.log('DB Error:', err);
-  }
-};
-
-// Har request se pehle database connection check karo
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
+// Simple & Robust Database Connection for Serverless
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 15000,
+})
+.then(() => console.log('MongoDB Connected successfully!'))
+.catch(err => console.error('MongoDB Connection Error:', err));
 
 // Session setup
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
@@ -63,7 +49,8 @@ app.get('/', async (req, res) => {
     const products = await Product.find().limit(3);
     res.render('home', { products });
   } catch(e) {
-    res.send('Error: ' + e.message);
+    console.error("Home Route Error:", e);
+    res.status(500).send('Error: ' + e.message);
   }
 });
 
@@ -94,7 +81,7 @@ app.get('/products', async (req, res) => {
       totalPages
     });
   } catch(e) {
-    res.send('Error: ' + e.message);
+    res.status(500).send('Error: ' + e.message);
   }
 });
 
@@ -102,10 +89,10 @@ app.get('/products', async (req, res) => {
 app.get('/products/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.send('Not found');
+    if (!product) return res.status(404).send('Not found');
     res.render('product_details', { product });
   } catch(e) {
-    res.send('Error: ' + e.message);
+    res.status(500).send('Error: ' + e.message);
   }
 });
 
@@ -176,12 +163,12 @@ app.post('/admin/add-product', isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-// ===== START SERVER (Local Testing Ke Liye) =====
+// For local development running
 if (process.env.NODE_ENV !== 'production') {
   app.listen(process.env.PORT || 3000, () => {
     console.log('Server running at http://localhost:3000');
   });
 }
 
-// VERCEL REQUIREMENT: Export the app instance
+// Export for Vercel
 module.exports = app;
