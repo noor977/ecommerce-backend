@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo')(session);
 const bcrypt = require('bcryptjs');
 
 const Product = require('./models/Product');
@@ -64,10 +64,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    mongoOptions: { family: 4 },
-    collectionName: 'sessions'
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    collection: 'sessions',
+    stringify: false
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
