@@ -1,6 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Product = require('./models/product');
+const Product = require('./models/Product');
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected for seeding...'))
