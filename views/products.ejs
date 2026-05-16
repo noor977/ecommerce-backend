@@ -14,6 +14,15 @@
       <ul class="nav-links">
         <li><a href="/">Home</a></li>
         <li><a href="/products">Products</a></li>
+        <% if (user) { %>
+          <% if (user.role === 'admin') { %>
+            <li><a href="/admin/add-product">Add Product</a></li>
+          <% } %>
+          <li><a href="/logout">Logout (<%= user.name %>)</a></li>
+        <% } else { %>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/signup">Sign Up</a></li>
+        <% } %>
       </ul>
       <div class="hamburger">☰</div>
     </nav>
@@ -22,7 +31,6 @@
   <main>
     <h2 class="page-title">All Products</h2>
 
-    <!-- Search Bar -->
     <div class="search-container">
       <form action="/products" method="GET">
         <input
@@ -43,7 +51,6 @@
       </form>
     </div>
 
-    <!-- Products Grid -->
     <div class="product-grid">
       <% if (products.length === 0) { %>
         <p class="no-results">No products found.</p>
@@ -59,16 +66,16 @@
         <% }) %>
       <% } %>
     </div>
+
+    <div class="pagination">
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <a href="/products?page=<%= i %>&search=<%= searchQuery %>&category=<%= categoryQuery %>"
+           class="<%= currentPage === i ? 'active' : '' %>">
+          <%= i %>
+        </a>
+      <% } %>
+    </div>
   </main>
-  <!-- Pagination -->
-<div class="pagination">
-  <% for(let i = 1; i <= totalPages; i++) { %>
-    <a href="/products?page=<%= i %>&search=<%= searchQuery %>&category=<%= categoryQuery %>"
-       class="<%= currentPage === i ? 'active' : '' %>">
-      <%= i %>
-    </a>
-  <% } %>
-</div>
 
   <footer>
     <p>&copy; 2025 ShopNow</p>
