@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 
 const Product = require('./models/Product');
@@ -22,19 +23,57 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Simple & Robust Database Connection for Serverless
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 15000,
-})
-.then(() => console.log('MongoDB Connected successfully!'))
-.catch(err => console.error('MongoDB Connection Error:', err));
+// Database connection helper for serverless
+const connectMongo = async () => {
+  if (mongoose.connection.readyState === 1) return;
+  if (global.mongoConnection && global.mongoConnection.readyState === 1) return global.mongoConnection;
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI is not defined');
 
-// Session setup
+  if (!global.mongoConnectPromise) {
+    global.mongoConnectPromise = mongoose.connect(process.env.MONGO_URI, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      family: 4
+    })
+    .then((mongooseInstance) => {
+      console.log('MongoDB Connected successfully!');
+      global.mongoConnection = mongooseInstance.connection;
+      return mongooseInstance.connection;
+    })
+    .catch((err) => {
+      console.error('MongoDB Connection Error:', err);
+      throw err;
+    });
+  }
+
+  return global.mongoConnectPromise;
+};
+
+app.use(async (req, res, next) => {
+  try {
+    await connectMongo();
+    next();
+  } catch (err) {
+    console.error('DB connect middleware error:', err);
+    res.status(500).send('Database connection failed');
+  }
+});
+
+// Session setup with MongoDB-backed persistence for serverless
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    mongoOptions: { family: 4 },
+    collectionName: 'sessions'
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    secure: process.env.VERCEL === '1',
+    sameSite: 'lax'
+  }
 }));
 
 // Make user available in all views
@@ -163,8 +202,8 @@ app.post('/admin/add-product', isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-// For local development running
-if (process.env.NODE_ENV !== 'production') {
+// Local dev server only
+if (!process.env.VERCEL) {
   app.listen(process.env.PORT || 3000, () => {
     console.log('Server running at http://localhost:3000');
   });
