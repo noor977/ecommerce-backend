@@ -23,9 +23,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // MongoDB connect
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB Connected!'))
-  .catch(err => console.log('DB Error:', err));
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    bufferCommands: false,
+  });
+  isConnected = true;
+  console.log('MongoDB Connected!');
+}
+
+connectDB().catch(err => console.log('DB Error:', err));
 
 // Session setup
 app.use(session({
