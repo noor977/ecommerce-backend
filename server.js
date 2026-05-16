@@ -5,7 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 
-const Product = require('./models/product');
+const Product = require('./models/Product');
 const User = require('./models/User');
 const { isLoggedIn, isAdmin } = require('./middleware/auth');
 
@@ -22,11 +22,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// MongoDB connect
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 15000,
-}).then(() => console.log('MongoDB Connected!'))
-  .catch(err => console.log('DB Error:', err));
+// Serverless friendly MongoDB connection logic
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return; // Agar pehle se connected hai to dobara connect mat karo
+  }
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 15000,
+    });
+    console.log('MongoDB Connected!');
+  } catch (err) {
+    console.log('DB Error:', err);
+  }
+};
+
+// Har request se pehle database connection check karo
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // Session setup
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -160,7 +176,12 @@ app.post('/admin/add-product', isLoggedIn, isAdmin, async (req, res) => {
   }
 });
 
-// ===== START SERVER =====
-app.listen(process.env.PORT || 3000, () => {
-  console.log('Server running at http://localhost:3000');
-});
+// ===== START SERVER (Local Testing Ke Liye) =====
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(process.env.PORT || 3000, () => {
+    console.log('Server running at http://localhost:3000');
+  });
+}
+
+// VERCEL REQUIREMENT: Export the app instance
+module.exports = app;
